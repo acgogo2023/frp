@@ -1,34 +1,34 @@
 #!/bin/bash
 
-# 下载正向补给燃料区（同forward refueling area）最新版本
-回声"正在下载FRP ... "
-卷曲-你好https://github . com/fate dier/FRP/releases/download/v 0 . 59 . 0/FRP _ 0 . 59 . 0 _ Linux _ amd64 . tar . gz
+# 下载FRP最新版本
+echo "Downloading FRP..."
+curl -LO https://github.com/fatedier/frp/releases/download/v0.59.0/frp_0.59.0_linux_amd64.tar.gz
 
 # 解压文件
-回声"提取纤维增强塑料..."
-水手-xzvffrp_0.59.0_linux_amd64.tar.gz
+echo "Extracting FRP..."
+tar -xzvf frp_0.59.0_linux_amd64.tar.gz
 
-# 移动到正向补给燃料区（同forward refueling area）目录
+# 移动到FRP目录
 cd frp_0.59.0_linux_amd64
 
-# 提示用户输入服务器地址
-阅读-p "请输入服务器地址(server_addr):"服务器_ADDR
-阅读-p "请输入服务器端口(服务器端口): "服务器端口
+# 提示用户输入server_addr
+read -p "Please enter the server address (server_addr): " SERVER_ADDR
+read -p "Please enter the server port (server_port): " SERVER_PORT
 
 # 更新frpc.toml文件
-cat > frpc.toml<<EOL
-[常见]
-服务器地址= $服务器addr
-服务器端口= $服务器端口
+cat > frpc.toml <<EOL
+[common]
+server_addr = $SERVER_ADDR
+server_port = $SERVER_PORT
 
 [http_proxy]
-类型= tcp
-插件= http _代理
+type = tcp
+plugin = http_proxy
 local_ip = 127.0.0.1
-本地端口= 5269
-远程端口= 5269
-寿命终止
+local_port = 5269
+remote_port = 5269
+EOL
 
 # 提示用户配置完成
-回声“玻璃钢配置完成。您可以使用以下命令启动FRP:"
-回声"./frpc -c ./frpc.toml "
+echo "FRP configuration is complete. You can start FRP using the following command:"
+echo "./frpc -c ./frpc.toml"

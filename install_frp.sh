@@ -78,15 +78,15 @@ EOL
 
 elif [ "$CHOICE" = "FRPS" ]; then
   # 提示用户输入FRPS配置
-  read -p "请输入 FRPS 监听端口 (server_port) [默认7000]: " FRPS_PORT
+  read -p "请输入 FRPS 监听端口 (bind_port) [默认7000]: " FRPS_PORT
 
   # 如果用户没有输入FRPS端口，使用默认值7000
-  if [ -z "$FRPS_PORT" ]; then
+  if [ -z "$FRPS_PORT" ];then
     FRPS_PORT=7000
   fi
 
   # 提示用户输入FRPS的remote_port
-  read -p "请输入 FRPS 远程端口 (remote_port): " FRPS_REMOTE_PORT
+  read -p "请输入 FRPS 远程端口 (vhost_http_port): " FRPS_REMOTE_PORT
 
   # 提示用户输入FRPS的账户和密码
   read -p "请输入 FRPS 账户 (auth_user): " AUTH_USER
@@ -113,7 +113,7 @@ EOL
 
   if [ "$RUN_FRPS" = "yes" ];then
     read -p "你要在后台运行 FRPS 吗? (yes/no): " BACKGROUND_FRPS
-    if [ "$BACKGROUND_FRPS" = "yes" ]; then
+    if [ "$BACKGROUND_FRPS" = "yes" ];then
       nohup ./frps -c ./frps.toml &
       echo "FRPS 已在后台启动。"
     else

@@ -32,7 +32,7 @@ if [ "$CHOICE" = "FRPC" ]; then
   read -p "请输入服务器端口 (server_port) [默认7000]: " SERVER_PORT
 
   # 如果用户没有输入server_port，使用默认值7000
-  if [ -z "$SERVER_PORT" ];; then
+  if [ -z "$SERVER_PORT" ]; then
     SERVER_PORT=7000
   fi
 
@@ -90,7 +90,7 @@ elif [ "$CHOICE" = "FRPS" ]; then
 
   # 提示用户输入FRPS的账户和密码
   read -p "请输入 FRPS 账户 (auth_user): " AUTH_USER
-  read -p "请输入 FRPS 密码 (auth_pass): " AUTH_PASS
+  read -sp "请输入 FRPS 密码 (auth_pass): " AUTH_PASS
   echo # 换行
 
   # 更新 frps.toml 文件

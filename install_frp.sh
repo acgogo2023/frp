@@ -26,16 +26,13 @@ cd $FRP_DIR
 # 提示用户选择配置和启动FRPC或FRPS
 read -p "你想配置和启动 FRPC 还是 FRPS? (输入 'FRPC' 或 'FRPS'): " CHOICE
 
-# 转换用户输入为小写
-CHOICE=$(echo "$CHOICE" | tr '[:upper:]' '[:lower:]')
-
-if [ "$CHOICE" = "frpc" ]; then
+if [ "$CHOICE" = "FRPC" ]; then
   # 提示用户输入FRPC配置
   read -p "请输入服务器地址 (server_addr) [服务端的IP]: " SERVER_ADDR
   read -p "请输入服务器端口 (server_port) [默认7000]: " SERVER_PORT
 
   # 如果用户没有输入server_port，使用默认值7000
-  if [ -z "$SERVER_PORT" ]; then
+  if [ -z "$SERVER_PORT" ];; then
     SERVER_PORT=7000
   fi
 
@@ -66,7 +63,7 @@ EOL
   # 提示用户是否启动FRPC
   read -p "你要现在启动 FRPC 吗? (yes/no): " RUN_FRPC
 
-  if [ "$RUN_FRPC" = "yes" ]; then
+  if [ "$RUN_FRPC" = "yes" ];then
     read -p "你要在后台运行 FRPC 吗? (yes/no): " BACKGROUND_FRPC
     if [ "$BACKGROUND_FRPC" = "yes" ]; then
       nohup ./frpc -c ./frpc.toml &
@@ -79,7 +76,7 @@ EOL
     echo "./frpc -c ./frpc.toml"
   fi
 
-elif [ "$CHOICE" = "frps" ]; then
+elif [ "$CHOICE" = "FRPS" ]; then
   # 提示用户输入FRPS配置
   read -p "请输入 FRPS 监听端口 (server_port) [默认7000]: " FRPS_PORT
 
@@ -98,4 +95,35 @@ elif [ "$CHOICE" = "frps" ]; then
 
   # 更新 frps.toml 文件
   cat > frps.toml <<EOL
-[common
+[common]
+bind_addr = 0.0.0.0
+bind_port = $FRPS_PORT
+vhost_http_port = $FRPS_REMOTE_PORT
+
+[auth]
+auth_user = $AUTH_USER
+auth_pass = $AUTH_PASS
+EOL
+
+  # 提示用户配置完成
+  echo "FRPS 配置完成。"
+
+  # 提示用户是否启动FRPS
+  read -p "你要现在启动 FRPS 吗? (yes/no): " RUN_FRPS
+
+  if [ "$RUN_FRPS" = "yes" ];then
+    read -p "你要在后台运行 FRPS 吗? (yes/no): " BACKGROUND_FRPS
+    if [ "$BACKGROUND_FRPS" = "yes" ]; then
+      nohup ./frps -c ./frps.toml &
+      echo "FRPS 已在后台启动。"
+    else
+      ./frps -c ./frps.toml
+    fi
+  else
+    echo "你可以稍后使用以下命令启动 FRPS:"
+    echo "./frps -c ./frps.toml"
+  fi
+
+else
+  echo "无效的选择，请重新运行脚本并输入 'FRPC' 或 'FRPS'。"
+fi

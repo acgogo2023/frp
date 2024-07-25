@@ -40,13 +40,16 @@ if [ "$CHOICE" = "FRPC" ]; then
   read -p "请输入 FRPC 本地端口 (local_port): " LOCAL_PORT
   read -p "请输入 FRPC 远程端口 (remote_port): " REMOTE_PORT
 
+  # 提示用户输入 [http_proxy] 名称
+  read -p "请输入 [http_proxy] 名称: " HTTP_PROXY_NAME
+
   # 更新 frpc.toml 文件
   cat > frpc.toml <<EOL
 [common]
 server_addr = $SERVER_ADDR
 server_port = $SERVER_PORT
 
-[http_proxy]
+[$HTTP_PROXY_NAME]
 type = tcp
 plugin = http_proxy
 local_ip = 127.0.0.1
@@ -60,7 +63,7 @@ EOL
   # 提示用户是否启动FRPC
   read -p "你要现在启动 FRPC 吗? (yes/no): " RUN_FRPC
 
-  if [ "$RUN_FRPC" = "yes" ]; then
+  if [ "$RUN_FRPC" = "yes" ];then
     read -p "你要在后台运行 FRPC 吗? (yes/no): " BACKGROUND_FRPC
     if [ "$BACKGROUND_FRPC" = "yes" ]; then
       nohup ./frpc -c ./frpc.toml &
@@ -108,7 +111,7 @@ EOL
   # 提示用户是否启动FRPS
   read -p "你要现在启动 FRPS 吗? (yes/no): " RUN_FRPS
 
-  if [ "$RUN_FRPS" = "yes" ]; then
+  if [ "$RUN_FRPS" = "yes" ];then
     read -p "你要在后台运行 FRPS 吗? (yes/no): " BACKGROUND_FRPS
     if [ "$BACKGROUND_FRPS" = "yes" ]; then
       nohup ./frps -c ./frps.toml &

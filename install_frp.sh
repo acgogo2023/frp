@@ -48,6 +48,9 @@ if [ "$CHOICE" = "FRPC" ]; then
 [common]
 server_addr = $SERVER_ADDR
 server_port = $SERVER_PORT
+log_file = "frpc.log"
+log_level = "info"
+log_max_days = 1
 
 [$HTTP_PROXY_NAME]
 type = tcp
@@ -85,9 +88,6 @@ elif [ "$CHOICE" = "FRPS" ]; then
     FRPS_PORT=7000
   fi
 
-  # 提示用户输入FRPS的remote_port
-  read -p "请输入 FRPS 远程端口 (vhost_http_port): " FRPS_REMOTE_PORT
-
   # 提示用户输入FRPS的账户和密码
   read -p "请输入 FRPS 账户 (auth_user): " AUTH_USER
   read -sp "请输入 FRPS 密码 (auth_pass): " AUTH_PASS
@@ -98,7 +98,9 @@ elif [ "$CHOICE" = "FRPS" ]; then
 [common]
 bind_addr = 0.0.0.0
 bind_port = $FRPS_PORT
-vhost_http_port = $FRPS_REMOTE_PORT
+log_file = "frps.log"
+log_level = "info"
+log_max_days = 1
 
 [auth]
 auth_user = $AUTH_USER

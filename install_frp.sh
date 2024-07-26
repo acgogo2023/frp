@@ -12,8 +12,13 @@ FRP_TAR="frp_${CURRENT_VERSION}_linux_amd64.tar.gz"
 FRP_DIR="frp_${CURRENT_VERSION}_linux_amd64"
 
 # 检查用户是否希望使用最新版本
-echo "最新版本的FRP是 ${LATEST_VERSION}"
-read -p "你想下载并使用最新版本的 FRP 吗？(yes/no): " USE_LATEST
+echo "最新版本的FRP是 ${LATEST_VERSION}，默认是 ${CURRENT_VERSION}"
+read -p "你想下载并使用最新版本的 FRP 吗？(yes/no) [默认no]: " USE_LATEST
+
+# 默认值处理
+if [ -z "$USE_LATEST" ]; then
+  USE_LATEST="no"
+fi
 
 if [ "$USE_LATEST" = "yes" ]; then
   FRP_TAR=$LATEST_TAR
@@ -109,7 +114,7 @@ elif [ "$CHOICE" = "FRPS" ]; then
 
   # 提示用户输入FRPS的账户和密码
   read -p "请输入 FRPS 账户 (auth_user): " AUTH_USER
-  read -sp "请输入 FRPS 密码 (auth_pass): " AUTH_PASS
+  read -p "请输入 FRPS 密码 (auth_pass): " AUTH_PASS
   echo # 换行
 
   # 更新 frps.toml 文件

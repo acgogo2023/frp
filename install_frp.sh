@@ -1,13 +1,32 @@
 #!/bin/bash
 
-# 定义文件名
-FRP_TAR="frp_0.59.0_linux_amd64.tar.gz"
-FRP_DIR="frp_0.59.0_linux_amd64"
+# 获取最新版本的下载链接
+LATEST_RELEASE=$(curl -s https://api.github.com/repos/fatedier/frp/releases/latest | grep "browser_download_url.*linux_amd64.tar.gz" | cut -d '"' -f 4)
+LATEST_VERSION=$(basename $LATEST_RELEASE | cut -d '_' -f 2)
+LATEST_TAR=$(basename $LATEST_RELEASE)
+LATEST_DIR="frp_${LATEST_VERSION}_linux_amd64"
+
+# 当前版本信息
+CURRENT_VERSION="0.59.0"
+FRP_TAR="frp_${CURRENT_VERSION}_linux_amd64.tar.gz"
+FRP_DIR="frp_${CURRENT_VERSION}_linux_amd64"
+
+# 检查用户是否希望使用最新版本
+echo "最新版本的FRP是 ${LATEST_VERSION}"
+read -p "你想下载并使用最新版本的 FRP 吗？(yes/no): " USE_LATEST
+
+if [ "$USE_LATEST" = "yes" ]; then
+  FRP_TAR=$LATEST_TAR
+  FRP_DIR=$LATEST_DIR
+  DOWNLOAD_URL=$LATEST_RELEASE
+else
+  DOWNLOAD_URL="https://github.com/fatedier/frp/releases/download/v${CURRENT_VERSION}/${FRP_TAR}"
+fi
 
 # 检查是否已下载FRP文件
 if [ ! -f "$FRP_TAR" ]; then
   echo "正在下载 FRP..."
-  curl -LO https://github.com/fatedier/frp/releases/download/v0.59.0/$FRP_TAR
+  curl -LO $DOWNLOAD_URL
 else
   echo "FRP 文件已存在，跳过下载步骤。"
 fi

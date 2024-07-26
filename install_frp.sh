@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# 颜色定义
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # 没有颜色
+
 # 获取最新版本的下载链接
 LATEST_RELEASE=$(curl -s https://api.github.com/repos/fatedier/frp/releases/latest | grep "browser_download_url.*linux_amd64.tar.gz" | cut -d '"' -f 4)
 LATEST_VERSION=$(basename $LATEST_RELEASE | cut -d '_' -f 2)
@@ -12,7 +18,7 @@ FRP_TAR="frp_${CURRENT_VERSION}_linux_amd64.tar.gz"
 FRP_DIR="frp_${CURRENT_VERSION}_linux_amd64"
 
 # 检查用户是否希望使用最新版本
-echo "最新版本的FRP是 ${LATEST_VERSION}，默认是 ${CURRENT_VERSION}"
+echo -e "${YELLOW}最新版本的FRP是 ${LATEST_VERSION}，默认是 ${CURRENT_VERSION}${NC}"
 read -p "你想下载并使用最新版本的 FRP 吗？(yes/no) [默认no]: " USE_LATEST
 
 # 默认值处理
@@ -30,18 +36,18 @@ fi
 
 # 检查是否已下载FRP文件
 if [ ! -f "$FRP_TAR" ]; then
-  echo "正在下载 FRP..."
+  echo -e "${GREEN}正在下载 FRP...${NC}"
   curl -LO $DOWNLOAD_URL
 else
-  echo "FRP 文件已存在，跳过下载步骤。"
+  echo -e "${YELLOW}FRP 文件已存在，跳过下载步骤。${NC}"
 fi
 
 # 检查是否已解压FRP文件
 if [ ! -d "$FRP_DIR" ]; then
-  echo "正在解压 FRP..."
+  echo -e "${GREEN}正在解压 FRP...${NC}"
   tar -xzvf $FRP_TAR
 else
-  echo "FRP 已经解压，跳过解压步骤。"
+  echo -e "${YELLOW}FRP 已经解压，跳过解压步骤。${NC}"
 fi
 
 # 进入FRP目录
@@ -85,7 +91,7 @@ remote_port = $REMOTE_PORT
 EOL
 
   # 提示用户配置完成
-  echo "FRPC 配置完成。"
+  echo -e "${GREEN}FRPC 配置完成。${NC}"
 
   # 提示用户是否启动FRPC
   read -p "你要现在启动 FRPC 吗? (yes/no): " RUN_FRPC
@@ -94,14 +100,14 @@ EOL
     read -p "你要在后台运行 FRPC 吗? (yes/no): " BACKGROUND_FRPC
     if [ "$BACKGROUND_FRPC" = "yes" ]; then
       nohup ./frpc -c ./frpc.toml &
-      echo "FRPC 已在后台启动。"
+      echo -e "${GREEN}FRPC 已在后台启动。${NC}"
     else
       ./frpc -c ./frpc.toml
     fi
   else
-    echo "你可以稍后使用以下命令启动 FRPC:"
+    echo -e "${YELLOW}你可以稍后使用以下命令启动 FRPC:${NC}"
     echo "./frpc -c ./frpc.toml"
-    echo "后台运行命令:"
+    echo -e "${YELLOW}后台运行命令:${NC}"
     echo "nohup ./frpc -c ./frpc.toml &"
   fi
 
@@ -134,7 +140,7 @@ auth_pass = $AUTH_PASS
 EOL
 
   # 提示用户配置完成
-  echo "FRPS 配置完成。"
+  echo -e "${GREEN}FRPS 配置完成。${NC}"
 
   # 提示用户是否启动FRPS
   read -p "你要现在启动 FRPS 吗? (yes/no): " RUN_FRPS
@@ -143,17 +149,17 @@ EOL
     read -p "你要在后台运行 FRPS 吗? (yes/no): " BACKGROUND_FRPS
     if [ "$BACKGROUND_FRPS" = "yes" ];then
       nohup ./frps -c ./frps.toml &
-      echo "FRPS 已在后台启动。"
+      echo -e "${GREEN}FRPS 已在后台启动。${NC}"
     else
       ./frps -c ./frps.toml
     fi
   else
-    echo "你可以稍后使用以下命令启动 FRPS:"
+    echo -e "${YELLOW}你可以稍后使用以下命令启动 FRPS:${NC}"
     echo "./frps -c ./frps.toml"
-    echo "后台运行命令:"
+    echo -e "${YELLOW}后台运行命令:${NC}"
     echo "nohup ./frps -c ./frps.toml &"
   fi
 
 else
-  echo "无效的选择，请重新运行脚本并输入 'FRPC' 或 'FRPS'。"
+  echo -e "${RED}无效的选择，请重新运行脚本并输入 'FRPC' 或 'FRPS'。${NC}"
 fi

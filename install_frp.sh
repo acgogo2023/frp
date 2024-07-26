@@ -56,7 +56,7 @@ if [ "$CHOICE" = "FRPC" ]; then
   read -p "请输入服务器端口 (server_port) [默认7000]: " SERVER_PORT
 
   # 如果用户没有输入server_port，使用默认值7000
-  if [ -z "$SERVER_PORT" ]; then
+  if [ -z "$SERVER_PORT" ];then
     SERVER_PORT=7000
   fi
 
@@ -101,6 +101,8 @@ EOL
   else
     echo "你可以稍后使用以下命令启动 FRPC:"
     echo "./frpc -c ./frpc.toml"
+    echo "后台运行命令:"
+    echo "nohup ./frpc -c ./frpc.toml &"
   fi
 
 elif [ "$CHOICE" = "FRPS" ]; then
@@ -148,6 +150,8 @@ EOL
   else
     echo "你可以稍后使用以下命令启动 FRPS:"
     echo "./frps -c ./frps.toml"
+    echo "后台运行命令:"
+    echo "nohup ./frps -c ./frps.toml &"
   fi
 
 else

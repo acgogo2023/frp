@@ -1,43 +1,31 @@
 #!/bin/bash
 
-# 颜色定义
+# 定义颜色
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # 没有颜色
 
-# 获取最新版本的下载链接
-LATEST_RELEASE=$(curl -s https://api.github.com/repos/fatedier/frp/releases/latest | grep "browser_download_url.*linux_amd64.tar.gz" | cut -d '"' -f 4)
-LATEST_VERSION=$(basename $LATEST_RELEASE | cut -d '_' -f 2)
-LATEST_TAR=$(basename $LATEST_RELEASE)
-LATEST_DIR="frp_${LATEST_VERSION}_linux_amd64"
+# 检查最新版本
+LATEST_VERSION=$(curl -s https://api.github.com/repos/fatedier/frp/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/')
+DEFAULT_VERSION="0.59.0"
 
-# 当前版本信息
-CURRENT_VERSION="0.59.0"
-FRP_TAR="frp_${CURRENT_VERSION}_linux_amd64.tar.gz"
-FRP_DIR="frp_${CURRENT_VERSION}_linux_amd64"
-
-# 检查用户是否希望使用最新版本
-echo -e "${YELLOW}最新版本的FRP是 ${LATEST_VERSION}，默认是 ${CURRENT_VERSION}${NC}"
-read -p "你想下载并使用最新版本的 FRP 吗？(yes/no) [默认no]: " USE_LATEST
-
-# 默认值处理
-if [ -z "$USE_LATEST" ]; then
-  USE_LATEST="no"
-fi
+echo -e "${YELLOW}你想下载并使用最新版本的 FRP 吗？(默认是 $DEFAULT_VERSION)${NC}"
+read -p "请输入 yes 或 no: " USE_LATEST
 
 if [ "$USE_LATEST" = "yes" ]; then
-  FRP_TAR=$LATEST_TAR
-  FRP_DIR=$LATEST_DIR
-  DOWNLOAD_URL=$LATEST_RELEASE
+  FRP_VERSION=$LATEST_VERSION
 else
-  DOWNLOAD_URL="https://github.com/fatedier/frp/releases/download/v${CURRENT_VERSION}/${FRP_TAR}"
+  FRP_VERSION=$DEFAULT_VERSION
 fi
+
+FRP_TAR="frp_${FRP_VERSION}_linux_amd64.tar.gz"
+FRP_DIR="frp_${FRP_VERSION}_linux_amd64"
 
 # 检查是否已下载FRP文件
 if [ ! -f "$FRP_TAR" ]; then
-  echo -e "${GREEN}正在下载 FRP...${NC}"
-  curl -LO $DOWNLOAD_URL
+  echo -e "${GREEN}正在下载 FRP ${FRP_VERSION}...${NC}"
+  curl -LO https://github.com/fatedier/frp/releases/download/v${FRP_VERSION}/${FRP_TAR}
 else
   echo -e "${YELLOW}FRP 文件已存在，跳过下载步骤。${NC}"
 fi
@@ -54,7 +42,15 @@ fi
 cd $FRP_DIR
 
 # 提示用户选择配置和启动FRPC或FRPS
-read -p "你想配置和启动 FRPC 还是 FRPS? (输入 'FRPC' 或 'FRPS'): " CHOICE
+while true; do
+  read -p "你想配置和启动 FRPC 还是 FRPS? (输入 'FRPC' 或 'FRPS'): " CHOICE
+  if [[ "$CHOICE" =~ ^(FRPC|frpc|FRPS|frps)$ ]]; then
+    CHOICE=$(echo "$CHOICE" | tr '[:lower:]' '[:upper:]') # 转换为大写
+    break
+  else
+    echo -e "${RED}无效的选择，请输入 'FRPC' 或 'FRPS'。${NC}"
+  fi
+done
 
 if [ "$CHOICE" = "FRPC" ]; then
   # 提示用户输入FRPC配置
@@ -62,7 +58,7 @@ if [ "$CHOICE" = "FRPC" ]; then
   read -p "请输入服务器端口 (server_port) [默认7000]: " SERVER_PORT
 
   # 如果用户没有输入server_port，使用默认值7000
-  if [ -z "$SERVER_PORT" ];then
+  if [ -z "$SERVER_PORT" ]; then
     SERVER_PORT=7000
   fi
 
@@ -94,10 +90,24 @@ EOL
   echo -e "${GREEN}FRPC 配置完成。${NC}"
 
   # 提示用户是否启动FRPC
-  read -p "你要现在启动 FRPC 吗? (yes/no): " RUN_FRPC
+  while true; do
+    read -p "你要现在启动 FRPC 吗? (yes/no): " RUN_FRPC
+    if [[ "$RUN_FRPC" =~ ^(yes|no)$ ]]; then
+      break
+    else
+      echo -e "${RED}无效的输入，请输入 'yes' 或 'no'。${NC}"
+    fi
+  done
 
-  if [ "$RUN_FRPC" = "yes" ];then
-    read -p "你要在后台运行 FRPC 吗? (yes/no): " BACKGROUND_FRPC
+  if [ "$RUN_FRPC" = "yes" ]; then
+    while true; do
+      read -p "你要在后台运行 FRPC 吗? (yes/no): " BACKGROUND_FRPC
+      if [[ "$BACKGROUND_FRPC" =~ ^(yes|no)$ ]]; then
+        break
+      else
+        echo -e "${RED}无效的输入，请输入 'yes' 或 'no'。${NC}"
+      fi
+    done
     if [ "$BACKGROUND_FRPC" = "yes" ]; then
       nohup ./frpc -c ./frpc.toml &
       echo -e "${GREEN}FRPC 已在后台启动。${NC}"
@@ -105,9 +115,9 @@ EOL
       ./frpc -c ./frpc.toml
     fi
   else
-    echo -e "${YELLOW}你可以稍后使用以下命令启动 FRPC:${NC}"
+    echo "你可以稍后使用以下命令启动 FRPC:"
     echo "./frpc -c ./frpc.toml"
-    echo -e "${YELLOW}后台运行命令:${NC}"
+    echo "你可以在后台使用以下命令启动 FRPC:"
     echo "nohup ./frpc -c ./frpc.toml &"
   fi
 
@@ -116,7 +126,7 @@ elif [ "$CHOICE" = "FRPS" ]; then
   read -p "请输入 FRPS 监听端口 (bind_port) [默认7000]: " FRPS_PORT
 
   # 如果用户没有输入FRPS端口，使用默认值7000
-  if [ -z "$FRPS_PORT" ];then
+  if [ -z "$FRPS_PORT" ]; then
     FRPS_PORT=7000
   fi
 
@@ -143,23 +153,36 @@ EOL
   echo -e "${GREEN}FRPS 配置完成。${NC}"
 
   # 提示用户是否启动FRPS
-  read -p "你要现在启动 FRPS 吗? (yes/no): " RUN_FRPS
+  while true; do
+    read -p "你要现在启动 FRPS 吗? (yes/no): " RUN_FRPS
+    if [[ "$RUN_FRPS" =~ ^(yes|no)$ ]]; then
+      break
+    else
+      echo -e "${RED}无效的输入，请输入 'yes' 或 'no'。${NC}"
+    fi
+  done
 
-  if [ "$RUN_FRPS" = "yes" ];then
-    read -p "你要在后台运行 FRPS 吗? (yes/no): " BACKGROUND_FRPS
-    if [ "$BACKGROUND_FRPS" = "yes" ];then
+  if [ "$RUN_FRPS" = "yes" ]; then
+    while true; do
+      read -p "你要在后台运行 FRPS 吗? (yes/no): " BACKGROUND_FRPS
+      if [[ "$BACKGROUND_FRPS" =~ ^(yes|no)$ ]]; then
+        break
+      else
+        echo -e "${RED}无效的输入，请输入 'yes' 或 'no'。${NC}"
+      fi
+    done
+    if [ "$BACKGROUND_FRPS" = "yes" ]; then
       nohup ./frps -c ./frps.toml &
       echo -e "${GREEN}FRPS 已在后台启动。${NC}"
     else
       ./frps -c ./frps.toml
     fi
   else
-    echo -e "${YELLOW}你可以稍后使用以下命令启动 FRPS:${NC}"
+    echo "你可以稍后使用以下命令启动 FRPS:"
     echo "./frps -c ./frps.toml"
-    echo -e "${YELLOW}后台运行命令:${NC}"
+    echo "你可以在后台使用以下命令启动 FRPS:"
     echo "nohup ./frps -c ./frps.toml &"
   fi
-
 else
   echo -e "${RED}无效的选择，请重新运行脚本并输入 'FRPC' 或 'FRPS'。${NC}"
 fi

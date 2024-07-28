@@ -184,6 +184,9 @@ log_max_days = 1
 [auth]
 auth_user = $AUTH_USER
 auth_pass = $AUTH_PASS
+
+[common.dashboard]
+dashboard_port = 7500
 EOL
 
   # 提示用户配置完成
